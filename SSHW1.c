@@ -6,7 +6,7 @@
 
 // Questions:
 // Are instructions going to be passed to main as integer arrays or integers?
-// I think integer of arrays because the input file has 7 0 10 as the first line and the op code relies on 7 for the instruction
+// I think integer arrays because the input file has 7 0 10 as the first line and the op code relies on 7 for the instruction
 
 // Is the code going to be tested with a different main method?
 // 
@@ -16,6 +16,8 @@
 // In class he said the stack is growing downwards which should have something to do with the sp (&gp?)
 // People were also saying there was a lot of copy and pasting so I think if we implement it by using the code
 // from appendix B that should work ??
+
+// Do you make the input file? Can you send that to me?
 
 typedef struct oplm {
     int op;   // opcode
@@ -60,7 +62,9 @@ int main(int argc, char **argv)
   }
 
   char buffer[500] = {0}, c;
-  int op, l, m, SP, BP, PC, IR, GP, HALT, i = 0;
+  int SP, BP, PC, IR, GP, HALT, i = 0;
+    //^deleted op, l, m from here which will mess up part of the code
+    // he gives us line 22, should include them in a node?
 
   printf("while loop initiated\n");
   while (!feof(fp))
