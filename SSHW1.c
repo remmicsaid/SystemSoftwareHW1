@@ -1,4 +1,4 @@
-efine MAX_DATA_STACK_HEIGHT 23
+#define MAX_DATA_STACK_HEIGHT 23
 #define MAX_CODE_LENGTH 500
 #define MAX_LEXI_LEVELS 3
 #include <stdio.h>
