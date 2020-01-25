@@ -6,8 +6,16 @@
 
 // Questions:
 // Are instructions going to be passed to main as integer arrays or integers?
+// I think integer of arrays because the input file has 7 0 10 as the first line and the op code relies on 7 for the instruction
+
 // Is the code going to be tested with a different main method?
+// 
+
 // How are we going to implement data area and text area?
+// the data area being the stack (?) and is the text area supposed to be the file we're inputting?
+// In class he said the stack is growing downwards which should have something to do with the sp (&gp?)
+// People were also saying there was a lot of copy and pasting so I think if we implement it by using the code
+// from appendix B that should work ??
 
 typedef struct oplm {
     int op;   // opcode
@@ -15,7 +23,7 @@ typedef struct oplm {
     int  m;   // M
 }instruction;
 
-instruction *create_instruction(int op, int l, int m)
+struct instruction *create_instruction(int op, int l, int m)
 {
   instruction *i = calloc(1, sizeof(instruction));
   i->op = op;
@@ -79,23 +87,16 @@ int main(int argc, char **argv)
   data-stack[n-1] =0;
   */
 
-  //scanf("%d %d %d", &op, &l, &m);
+  
 
-  SP = MAX_DATA_STACK_HEIGHT;
-  BP = 0;
-  PC = 0;
-  IR  = 0;
-  GP = -1;
-  HALT = 0;
+  int SP = MAX_DATA_STACK_HEIGHT;
+  int BP = 0;
+  int PC = 0;
+  int IR  = 0;
+  int GP = -1;
+  int HALT = 0;
 
-  /*
-  BrainStorming
-
-  In class he also set the switch statement to ir.op
-
-  maybe a recursive function would help
-  */
-
+  
   // while(HALT == 0)
   // {
   //    // fetch{
