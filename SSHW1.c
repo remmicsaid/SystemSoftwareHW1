@@ -1,14 +1,19 @@
-#define MAX_DATA_STACK_HEIGHT 23
+efine MAX_DATA_STACK_HEIGHT 23
 #define MAX_CODE_LENGTH 500
 #define MAX_LEXI_LEVELS 3
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
 
 typedef struct oplm {
     int op;   // opcode
     int  l;   // L
     int  m;   // M
 }instruction;
+
+int fetchCycle(char *list);
+int executionCycle(instruction *ir);
 
 instruction *create_instruction(int op, int l, int m)
 {
@@ -56,8 +61,9 @@ int fetchCycle(char *list)
       return 0;
     }
 
+    instruction *ir = create_instruction(op, l, m);
     // tells main if a call to execution cycle failed
-    if (!executionCycle(op, l, m))
+    if (!executionCycle(ir))
     {
       printf("err: executionCycle failed\n");
       return 0;
@@ -66,52 +72,9 @@ int fetchCycle(char *list)
   return 1;
 }
 
-int executionCycle(int op, int l, int m)
+int executionCycle(instruction *ir)
 {
-
-}
-
-int main(int argc, char **argv)
-{
-  // Reading the instrustions
-  char *filename = argv[1];
-  FILE *fp;
-  if (fp = fopen(filename, "r"))
-  {
-    fp = fopen(filename, "r");
-    // printf("File opened\n");
-  }
-  else
-  {
-    printf("err: file not found");
-    return 0;
-  }
-
-  char buffer[500] = {0}, c;
-  int op, l, m, SP, BP, PC, IR, GP, HALT, i = 0;
-
-  // Collecting file input
-  while (!feof(fp))
-  {
-    c = fgetc(fp);
-    if (isdigit(c))
-    {
-      buffer[i] = c;
-    }
-    i++;
-  }
-  // printf("while loop completed\n");
-
-  // Processing instructions
-  // Loop throught the file, assign corresponding values to op, l, and m,
-  // execute instructions that op, l, and m signify, and repeat until complete.
-  //   ^
-  //   I think this loop should probably be in the fetchCycle() function along with
-  //   some of the surrounding code
-
-
-  instruction *ir = create_instruction(op, l, m);
-
+  int op, l, m, SP, BP, PC, IR, GP, HALT;
   /*
   Initial “data-stack” store values:
   data-stack[0] =0;
@@ -205,6 +168,37 @@ int main(int argc, char **argv)
 
        }
     }
-    fclose(fp);
+}
+
+int main(int argc, char **argv)
+{
+  // Reading the instrustions
+  int i = 0;
+  char *filename = argv[1], buffer[500] = {0}, c;
+  FILE *fp;
+  if (fp = fopen(filename, "r"))
+  {
+    fp = fopen(filename, "r");
+    // printf("File opened\n");
+  }
+  else
+  {
+    printf("err: file not found");
     return 0;
+  }
+
+  // Collecting file input
+  while (!feof(fp))
+  {
+    c = fgetc(fp);
+    if (isdigit(c))
+    {
+      buffer[i] = c;
+    }
+    i++;
+  }
+  // printf("while loop completed\n");
+
+  fclose(fp);
+  return 0;
 }
