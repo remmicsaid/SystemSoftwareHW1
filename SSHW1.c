@@ -4,11 +4,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-// Questions:
-// Are instructions going to be passed to main as integer arrays or integers?
-// Is the code going to be tested with a different main method?
-// How are we going to implement data area and text area?
-
 typedef struct oplm {
     int op;   // opcode
     int  l;   // L
@@ -25,12 +20,53 @@ instruction *create_instruction(int op, int l, int m)
   return i;
 }
 
-int fetchCycle()
+// Parses through the array sent and makes sure the instructions are valid
+int fetchCycle(char *list)
 {
+  int op, l, m, i, len = strlen(list);
+  // Assigns op, l, and m to the correct values and returns if the input was not
+  // given in sets of three integers.
+  while (1)
+  {
+    if (i < len)
+    {
+      op = list[i] - '0';
+    }
+    else
+    {
+      printf("err: input must be in sets of threes\n");
+      return 0;
+    }
+    if (i < len)
+    {
+      l = list[i] - '0';
+    }
+    else
+    {
+      printf("err: input must be in sets of threes\n");
+      return 0;
+    }
+    if (i < len)
+    {
+      m = list[i] - '0';
+    }
+    else
+    {
+      printf("err: input must be in sets of threes\n");
+      return 0;
+    }
 
+    // tells main if a call to execution cycle failed
+    if (!executionCycle(op, l, m))
+    {
+      printf("err: executionCycle failed\n");
+      return 0;
+    }
+  }
+  return 1;
 }
 
-int executionCycle()
+int executionCycle(int op, int l, int m)
 {
 
 }
@@ -43,7 +79,7 @@ int main(int argc, char **argv)
   if (fp = fopen(filename, "r"))
   {
     fp = fopen(filename, "r");
-    printf("File opened\n");
+    // printf("File opened\n");
   }
   else
   {
@@ -54,14 +90,17 @@ int main(int argc, char **argv)
   char buffer[500] = {0}, c;
   int op, l, m, SP, BP, PC, IR, GP, HALT, i = 0;
 
-  printf("while loop initiated\n");
+  // Collecting file input
   while (!feof(fp))
   {
-    // buffer[i++] = fgetc(fp);
-    // printf("%s", buffer);
-    printf("%c", fgetc(fp));
+    c = fgetc(fp);
+    if (isdigit(c))
+    {
+      buffer[i] = c;
+    }
+    i++;
   }
-  printf("while loop completed\n");
+  // printf("while loop completed\n");
 
   // Processing instructions
   // Loop throught the file, assign corresponding values to op, l, and m,
@@ -69,6 +108,8 @@ int main(int argc, char **argv)
   //   ^
   //   I think this loop should probably be in the fetchCycle() function along with
   //   some of the surrounding code
+
+
   instruction *ir = create_instruction(op, l, m);
 
   /*
@@ -96,74 +137,74 @@ int main(int argc, char **argv)
   maybe a recursive function would help
   */
 
-  // while(HALT == 0)
-  // {
-  //    // fetch{
-  //    //
-  //    //
-  //    // }
-  //
-  //    switch(ir->op){
-  //
-  //  case 1:
-  //      //LIT    0, M
-  //      //if (bp = = 0) {
-  //      //gp = gp + 1 ;
-  //      //stack[gp]  M ;
-  //      //}
-  //      //else {
-  //      //sp  sp - 1;
-  //      //stack[sp]  M;
-  //      //}
-  //   break;
-  //
-  //  case 2:
-  //      //OPR 0, #   ( 0  ≤  #  ≤  13 )
-  //      //see document
-  //   break;
-  //
-  //  case 3:
-  //      //LOD   L, Mif (base(L, bp) = = 0)
-  //      //{gp = gp + 1; stack[gp]  stack[ base(L, bp) + M];
-  //      //}
-  //      //else   { sp   sp - 1; stack[sp]  stack[ base(L, bp) - M];}
-  //   break;
-  //
-  //  case 4:
-  //      //STO L, Mif (base(L, bp) = = 0)
-  //      //{stack[ base(L, bp) + M] stack[gp]; gp = gp – 1;}else   {stack[ base(L, bp) - M] stack[sp]; sp  sp + 1;}
-  //   break;
-  //
-  //  case 5:
-  //      //CAL   L, Mif (sp – 4 ≤ gp) Error_StakOverflow ( );stack[sp - 1]   0/* space to return valuestack[sp - 2]    base(L, bp); /* static link (SL)stack[sp - 3]   bp;/* dynamic link (DL)stack[sp - 4]   pc/* return address (RA) bp  sp - 1;pc M;
-  //      break;
-  //
-  //  case 6:
-  //      //INC    0, Mif (sp – M ≤ gp) Error_StakOverflow ( );if (bp = = 0) gp = gp + Melse sp  sp - M;
-  //      break;
-  //
-  //  case 7:
-  //      //JMP   0, Mpc M;
-  //      break;
-  //
-  //  case 8:
-  //      //JPC    0, M if stack[sp] == 0 then { pc M; }sp  sp + 1;
-  //      break;
-  //
-  //  case 9:
-  //      //SIO 0, 1print(stack[sp]);sp  sp + 1;
-  //      break;
-  //
-  //  case 10:
-  //      //SIO   0, 2sp  sp - 1;read(stack[sp]);
-  //      break;
-  //
-  //   default:
-  //       //SIO   0, 3Set Halt flag to one;
-  //       HALT = 1;
-  //
-  //      }
-  //   }
+  while(HALT == 0)
+  {
+     // fetch{
+     //
+     //
+     // }
+
+     switch(ir->op){
+
+   case 1:
+       //LIT    0, M
+       //if (bp = = 0) {
+       //gp = gp + 1 ;
+       //stack[gp]  M ;
+       //}
+       //else {
+       //sp  sp - 1;
+       //stack[sp]  M;
+       //}
+    break;
+
+   case 2:
+       //OPR 0, #   ( 0  ≤  #  ≤  13 )
+       //see document
+    break;
+
+   case 3:
+       //LOD   L, Mif (base(L, bp) = = 0)
+       //{gp = gp + 1; stack[gp]  stack[ base(L, bp) + M];
+       //}
+       //else   { sp   sp - 1; stack[sp]  stack[ base(L, bp) - M];}
+    break;
+
+   case 4:
+       //STO L, Mif (base(L, bp) = = 0)
+       //{stack[ base(L, bp) + M] stack[gp]; gp = gp – 1;}else   {stack[ base(L, bp) - M] stack[sp]; sp  sp + 1;}
+    break;
+
+   case 5:
+       //CAL   L, Mif (sp – 4 ≤ gp) Error_StakOverflow ( );stack[sp - 1]   0/* space to return valuestack[sp - 2]    base(L, bp); /* static link (SL)stack[sp - 3]   bp;/* dynamic link (DL)stack[sp - 4]   pc/* return address (RA) bp  sp - 1;pc M;
+       break;
+
+   case 6:
+       //INC    0, Mif (sp – M ≤ gp) Error_StakOverflow ( );if (bp = = 0) gp = gp + Melse sp  sp - M;
+       break;
+
+   case 7:
+       //JMP   0, Mpc M;
+       break;
+
+   case 8:
+       //JPC    0, M if stack[sp] == 0 then { pc M; }sp  sp + 1;
+       break;
+
+   case 9:
+       //SIO 0, 1print(stack[sp]);sp  sp + 1;
+       break;
+
+   case 10:
+       //SIO   0, 2sp  sp - 1;read(stack[sp]);
+       break;
+
+    default:
+        //SIO   0, 3Set Halt flag to one;
+        HALT = 1;
+
+       }
+    }
     fclose(fp);
     return 0;
 }
