@@ -15,10 +15,11 @@ typedef struct oplm {
 int fetchCycle(char *list);
 int executionCycle(instruction *ir);
 
-instruction *create_instruction(int op, int l, int m)
+instruction *create_instruction(int op, int reg, int l, int m)
 {
   instruction *i = calloc(1, sizeof(instruction));
   i->op = op;
+  i->reg = reg;
   i->l = l;
   i->m = m;
 
@@ -28,42 +29,32 @@ instruction *create_instruction(int op, int l, int m)
 // Parses through the array sent and makes sure the instructions are valid
 int fetchCycle(char *list)
 {
-  int op, l, m, i, len = strlen(list);
+  int op, l, m, pc, len = strlen(list);
+  pc = 0;
   // Assigns op, l, and m to the correct values and returns if the input was not
   // given in sets of three integers.
-  while (1)
+  if ( (len % 4) == 0)
   {
-    if (i < len)
-    {
-      op = list[i] - '0';
+    
+      op = list[pc] - '0';
+      pc++;
+      reg = list[pc] - '0';
+      pc++;
+      l = list[pc] - '0';
+      pc++;
+      m = list[pc] - '0';
+      pc++;
+        
     }
+    
     else
     {
-      printf("err: input must be in sets of threes\n");
-      return 0;
+     return 0;   
     }
-    if (i < len)
-    {
-      l = list[i] - '0';
-    }
-    else
-    {
-      printf("err: input must be in sets of threes\n");
-      return 0;
-    }
-    if (i < len)
-    {
-      m = list[i] - '0';
-    }
-    else
-    {
-      printf("err: input must be in sets of threes\n");
-      return 0;
-    }
-
-    instruction *ir = create_instruction(op, l, m);
+    
+    instruction *inst = create_instruction(op, reg, l, m);
     // tells main if a call to execution cycle failed
-    if (!executionCycle(ir))
+    if (!executionCycle(inst))
     {
       printf("err: executionCycle failed\n");
       return 0;
@@ -74,40 +65,31 @@ int fetchCycle(char *list)
 
 int executionCycle(instruction *ir)
 {
-  int op, l, m, SP, BP, PC, IR, GP, HALT;
-  /*
-  Initial “data-stack” store values:
-  data-stack[0] =0;
-  data-stack[1] =0;
-  ...;
-  data-stack[n-1] =0;
-  */
-
-  //scanf("%d %d %d", &op, &l, &m);
-
+  int SP, BP, PC, IR, GP, HALT;
+  int data-stack[41];
+    
+  for(int a = 0; a<40; a++)
+  {
+     data-stack[a] = 0;   
+  }
+  
+    
   SP = MAX_DATA_STACK_HEIGHT;
   BP = 0;
   PC = 0;
   IR  = 0;
   GP = -1;
-  HALT = 0;
+  HALT = 1;
+  int i =0;
 
-  /*
-  BrainStorming
-
-  In class he also set the switch statement to ir.op
-
-  maybe a recursive function would help
-  */
-
-  while(HALT == 0)
+  while(HALT == 1)
   {
      // fetch{
      //
      //
      // }
 
-     switch(ir->op){
+   switch(ir->op){
 
    case 1:
        //LIT    0, M
@@ -119,11 +101,16 @@ int executionCycle(instruction *ir)
        //sp  sp - 1;
        //stack[sp]  M;
        //}
+       reg[i] = m;
     break;
 
    case 2:
        //OPR 0, #   ( 0  ≤  #  ≤  13 )
        //see document
+            
+       sp = bp - 1;
+       bp = stack[sp + 3];
+       pc = stack[sp + 4];
     break;
 
    case 3:
@@ -131,6 +118,7 @@ int executionCycle(instruction *ir)
        //{gp = gp + 1; stack[gp]  stack[ base(L, bp) + M];
        //}
        //else   { sp   sp - 1; stack[sp]  stack[ base(L, bp) - M];}
+       reg[i] = stack[ base(L, bp) + M];
     break;
 
    case 4:
@@ -164,7 +152,7 @@ int executionCycle(instruction *ir)
 
     default:
         //SIO   0, 3Set Halt flag to one;
-        HALT = 1;
+        HALT = 0;
 
        }
     }
