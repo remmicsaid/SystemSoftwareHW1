@@ -47,17 +47,19 @@ int executionCycle()
 
 int main(int argc, char **argv)
 {
+  //argc = number of arguments
+  //**argv = double array representing the instr
   // Reading the instrustions
   char *filename = argv[1];
   FILE *fp;
   if (fp = fopen(filename, "r"))
   {
     fp = fopen(filename, "r");
-    printf("File opened\n");
+    //printf("File opened\n");
   }
   else
   {
-    printf("err: file not found");
+    //printf("err: file not found");
     return 0;
   }
 
