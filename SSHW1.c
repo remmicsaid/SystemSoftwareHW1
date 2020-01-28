@@ -33,6 +33,11 @@ int fetchCycle(char *list)
   pc = 0;
   // Assigns op, l, and m to the correct values and returns if the input was not
   // given in sets of three integers.
+    
+    /*
+    maybe fscanf(file, "%d", &something);
+    
+    */
   if ( (len % 4) == 0)
   {
     
