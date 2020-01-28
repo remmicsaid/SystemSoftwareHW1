@@ -8,6 +8,7 @@
 
 typedef struct oplm {
     int op;   // opcode
+    int reg;
     int  l;   // L
     int  m;   // M
 }instruction;
@@ -29,8 +30,8 @@ instruction *create_instruction(int op, int reg, int l, int m)
 // Parses through the array sent and makes sure the instructions are valid
 int fetchCycle(char *list)
 {
-  int op, l, m, pc, len = strlen(list);
-  pc = 0;
+  int op, reg, l, m, len = strlen(list);
+  int pc = 0;
   // Assigns op, l, and m to the correct values and returns if the input was not
   // given in sets of three integers.
     
@@ -68,18 +69,20 @@ int fetchCycle(char *list)
       printf("err: executionCycle failed\n");
       return 0;
     }
+    
+    return 1;
   }
-  return 1;
-}
+  
+
 
 int executionCycle(instruction *ir)
 {
   int SP, BP, PC, IR, GP, HALT;
-  int data-stack[41];
+  int data_stack[41];
     
   for(int a = 0; a<40; a++)
   {
-     data-stack[a] = 0;   
+     data_stack[a] = 0;   
   }
   
     
