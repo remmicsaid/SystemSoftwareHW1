@@ -35,7 +35,11 @@ int fetchCycle(char *list)
   // given in sets of three integers.
     
     /*
-    maybe fscanf(file, "%d", &something);
+     ok i think something like this would work 
+     
+     fscanf(file, "%d %d %d %d", &op, &reg, &l, &m);
+     
+     this should collect the first line and then maybe we can make a function to call the lines one by one until we hit sio
     
     */
   if ( (len % 4) == 0)
