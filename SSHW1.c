@@ -6,6 +6,7 @@
 #define MAX_DATA_STACK_HEIGHT 23
 #define MAX_CODE_LENGTH 500
 #define MAX_LEXI_LEVELS 3
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -70,76 +71,74 @@ void executionCycle(instruction *inst)
 
   while(halt == 1)
   {
-     // fetch{
-     //
-     //
-     // }
 
    switch(inst->op){
 
    case 1:
-       //LIT    0, M
-       //if (bp = = 0) {
-       //gp = gp + 1 ;
-       //stack[gp]  M ;
-       //}
-       //else {
-       //sp  sp - 1;
-       //stack[sp]  M;
-       //}
-       reg[i] = m;
+
+    reg[i] = m;
     break;
 
    case 2:
-       //OPR 0, #   ( 0  ≤  #  ≤  13 )
-       //see document
 
-       sp = bp - 1;
-       bp = data_stack[sp + 3];
-       pc = data_stack[sp + 4];
+    sp = bp - 1;
+    bp = data_stack[sp + 3];
+    pc = data_stack[sp + 4];
     break;
 
    case 3:
-       //LOD   L, Mif (base(L, bp) = = 0)
-       //{gp = gp + 1; stack[gp]  stack[ base(L, bp) + M];
-       //}
-       //else   { sp   sp - 1; stack[sp]  stack[ base(L, bp) - M];}
-       // reg[i] = data_stack[ base(L, bp) + M];
+
+    reg[i] = data_stack[base(inst->l, bp) + m];
     break;
 
    case 4:
-       //STO L, Mif (base(L, bp) = = 0)
-       //{stack[ base(L, bp) + M] stack[gp]; gp = gp – 1;}else   {stack[ base(L, bp) - M] stack[sp]; sp  sp + 1;}
+
+    data_stack[ base(inst->l, bp) + m] = reg[i];
     break;
 
    case 5:
-       //CAL   L, Mif (sp – 4 ≤ gp) Error_StakOverflow ( );stack[sp - 1]   0/* space to return valuestack[sp - 2]    base(L, bp); /* static link (SL)stack[sp - 3]   bp;/* dynamic link (DL)stack[sp - 4]   pc/* return address (RA) bp  sp - 1;pc M;
-       break;
+       
+    data_stack[sp + 1]  = 0;
+    data_stack[sp + 2]  =  base(inst->l, bp); 
+    data_stack[sp + 3]  = bp;
+    data_stack[sp + 4]  = pc;
+    bp = sp + 1;
+    pc = m;
+    break;
 
    case 6:
-       //INC    0, Mif (sp – M ≤ gp) Error_StakOverflow ( );if (bp = = 0) gp = gp + Melse sp  sp - M;
+       
+       sp = sp + m;
        break;
 
    case 7:
-       //JMP   0, Mpc M;
+       
+       pc = m;
        break;
 
    case 8:
-       //JPC    0, M if stack[sp] == 0 then { pc M; }sp  sp + 1;
+       
+       if(reg[i] == 0)
+       {
+           pc = m;
+       }
        break;
 
    case 9:
-       //SIO 0, 1print(stack[sp]);sp  sp + 1;
+       
+       printf("%d", reg[i]);
        break;
 
    case 10:
-       //SIO   0, 2sp  sp - 1;read(stack[sp]);
+       
+       //old version said: sp = sp - 1; read(stack[sp]);
+       //new version says read reg[i];
        break;
 
     default:
-        //SIO   0, 3Set halt flag to one;
+        
         halt = 0;
-
+        
        }
     }
 }
@@ -196,6 +195,8 @@ void printInstructions(instruction *arr, int len)
   }
 }
 
+
+
 // frees all of the dynamically allocated memory from the instruction array
 void burnIt(instruction *arr, int len)
 {
@@ -246,3 +247,4 @@ int main(int argc, char **argv)
   fclose(fp);
   return 0;
 }
+
