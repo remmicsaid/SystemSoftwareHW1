@@ -21,7 +21,9 @@ typedef struct oplm {
 instruction *create_instruction(int op, int reg, int l, int m);
 int fetchCycle(char *list);
 int executionCycle(instruction *ir);
-instruction *toInstruction(char *str, instruction *thisInst);
+instruction *toInstruction(char *str);
+void printInstructions(instruction *arr, int len);
+void burnIt(instruction *arr, int len);
 
 instruction *create_instruction(int op, int reg, int l, int m)
 {
@@ -167,10 +169,12 @@ int executionCycle(instruction *inst)
 // an array of instructions. Then parses the integer values out of the string
 // and assigns them to the corresponding values within an instruction struct.
 // This function returns an ordered array of all of the instructions.
-instruction *toInstruction(char *str, instruction *theseInstructions)
+instruction *toInstruction(char *str)
 {
   int count = 1, op, reg, l, m, len = strlen(str), i = 0;
+  instruction *thisInst;
 
+  instruction *theseInstructions = malloc((sizeof(instruction) * len) + 1);
   char *token = " ";
   while (token != NULL)
   {
@@ -204,13 +208,33 @@ instruction *toInstruction(char *str, instruction *theseInstructions)
   return theseInstructions;
 }
 
+void printInstructions(instruction *arr, int len)
+{
+  int i;
+  for (i = 0; i < len; i++)
+  {
+    printf("instruction %d: %d %d %d %d\n", i, arr[i]->op, arr[i]->reg, arr[i]->l, arr[i]->m);
+  }
+}
+
+// frees all of the dynamically allocated memory from the instruction array
+void burnIt(instruction *arr, int len)
+{
+  int i;
+  for (i = 0; i < len; i++)
+  {
+    free(arr[i]);
+  }
+  free(arr);
+}
+
 int main(int argc, char **argv)
 {
   // Reading the instrustions
-  int i = 0, j = 0;
-  char *filename = argv[1], buffer[MAX_CODE_LENGTH] = {0}, c;
+  int i = 0, j = 0, len;
+  char *filename = argv[1], buffer[MAX_CODE_LENGTH] = {'\0'}, c;
   FILE *fp;
-  instruction theseInstructions[MAX_CODE_LENGTH];
+  instruction *theseInstructions;
 
   if (fp != NULL)
   {
@@ -228,12 +252,14 @@ int main(int argc, char **argv)
   {
     c = fgetc(fp);
     buffer[i++] = c;
-    printf("another one\n");
   }
+  len = strlen(buffer);
 
-  theseInstructions = toInstruction(buffer, theseInstructions);
-  // printf("%s\n", buffer);
+  theseInstructions = toInstruction(buffer);
+  printInstructions(theseInstructions, len);
+  burnIt(theseInstructions, len);
 
   fclose(fp);
   return 0;
 }
+
