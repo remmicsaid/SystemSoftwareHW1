@@ -19,8 +19,8 @@ typedef struct oplm {
 }instruction;
 
 instruction *create_instruction(int op, int reg, int l, int m);
-int fetchCycle(char *list);
-int executionCycle(instruction *ir);
+void fetchCycle(instruction *theseInstructions, int len);
+void executionCycle(instruction *ir);
 instruction *toInstruction(char *str);
 void printInstructions(instruction *arr, int len);
 void burnIt(instruction *arr, int len);
@@ -36,41 +36,21 @@ instruction *create_instruction(int op, int reg, int l, int m)
   return i;
 }
 
-// Parses through the array sent and makes sure the instructions are valid
-int fetchCycle(char *list)
+// iterates through array of instructions and sends them to executionCycle
+void fetchCycle(instruction *theseInstructions, int len)
 {
-  int op, l, m, pc, reg, len = strlen(list);
-  pc = 0;
-  // Assigns op, l, and m to the correct values and returns if the input was not
-  // given in sets of three integers.
-  // if ( (len % 4) == 0)
-  // {
-  //   op = list[pc] - '0';
-  //   pc++;
-  //   reg = list[pc] - '0';
-  //   pc++;
-  //   l = list[pc] - '0';
-  //   pc++;
-  //   m = list[pc] - '0';
-  //   pc++;
-  // }
-  // else
-  // {
-  //   return 0;
-  // }
-  //
-  // instruction *inst = create_instruction(op, reg, l, m);
-  // tells main if a call to execution cycle failed
-  // if (!executionCycle(inst))
-  // {
-  //   printf("err: executionCycle failed\n");
-  //   return 0;
-  // }
+  int i;
 
-  return 1;
+  for (i = 0; i < len; i++)
+  {
+    executionCycle(&theseInstructions[i]);
+  }
+
+  return;
 }
 
-int executionCycle(instruction *inst)
+// takes in a single instruction and executes the command of that instruction
+void executionCycle(instruction *inst)
 {
   int sp, bp, pc, ir, gp, halt, m;
   int data_stack[41], reg[200];
@@ -79,7 +59,6 @@ int executionCycle(instruction *inst)
   {
      data_stack[a] = 0;
   }
-
 
   sp = MAX_DATA_STACK_HEIGHT;
   bp = 0;
@@ -213,7 +192,7 @@ void printInstructions(instruction *arr, int len)
   int i;
   for (i = 0; i < len; i++)
   {
-    printf("instruction %d: %d %d %d %d\n", i, arr[i]->op, arr[i]->reg, arr[i]->l, arr[i]->m);
+    printf("instruction %d: %d %d %d %d\n", i, arr[i].op, arr[i].reg, arr[i].l, arr[i].m);
   }
 }
 
@@ -223,7 +202,7 @@ void burnIt(instruction *arr, int len)
   int i;
   for (i = 0; i < len; i++)
   {
-    free(arr[i]);
+    free(&arr[i]);
   }
   free(arr);
 }
@@ -231,7 +210,7 @@ void burnIt(instruction *arr, int len)
 int main(int argc, char **argv)
 {
   // Reading the instrustions
-  int i = 0, j = 0, len;
+  int i = 0, j = 0, len, retval;
   char *filename = argv[1], buffer[MAX_CODE_LENGTH] = {'\0'}, c;
   FILE *fp;
   instruction *theseInstructions;
@@ -255,11 +234,15 @@ int main(int argc, char **argv)
   }
   len = strlen(buffer);
 
+  // converting char input to ints then to instructions and storing those
+  // instructions in an array
   theseInstructions = toInstruction(buffer);
+  // testing toInstruction by printing array of instructions
   printInstructions(theseInstructions, len);
+  // sending array of instructions to be processed
+  fetchCycle(theseInstructions, len);
   burnIt(theseInstructions, len);
 
   fclose(fp);
   return 0;
 }
-
