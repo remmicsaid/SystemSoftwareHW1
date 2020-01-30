@@ -50,6 +50,20 @@ void fetchCycle(instruction *theseInstructions, int len)
   return;
 }
 
+int base(int l, int base, int* data_stack)
+// l stand for L in the instruction format
+{
+    int b1; //find base L levels down
+    b1 = base;
+    while (l > 0)
+    {
+        b1 = data_stack[b1 + 1];
+        l--;
+
+    }
+    return b1;
+}
+
 // takes in a single instruction and executes the command of that instruction
 void executionCycle(instruction *inst)
 {
@@ -88,18 +102,19 @@ void executionCycle(instruction *inst)
 
    case 3:
 
-    reg[i] = data_stack[base(inst->l, bp) + m];
+    reg[i] = data_stack[base(inst->l, bp, data_stack) + m];
     break;
 
    case 4:
 
-    data_stack[ base(inst->l, bp) + m] = reg[i];
+    data_stack[ base(inst->l, bp, data_stack) + m] = reg[i];
     break;
 
    case 5:
-       
+
     data_stack[sp + 1]  = 0;
-    data_stack[sp + 2]  =  base(inst->l, bp); 
+    data_stack[sp + 2]  =  base(inst->l, bp, data_stack);
+    //base is a function
     data_stack[sp + 3]  = bp;
     data_stack[sp + 4]  = pc;
     bp = sp + 1;
@@ -107,17 +122,17 @@ void executionCycle(instruction *inst)
     break;
 
    case 6:
-       
+
        sp = sp + m;
        break;
 
    case 7:
-       
+
        pc = m;
        break;
 
    case 8:
-       
+
        if(reg[i] == 0)
        {
            pc = m;
@@ -125,20 +140,21 @@ void executionCycle(instruction *inst)
        break;
 
    case 9:
-       
+
        printf("%d", reg[i]);
        break;
 
    case 10:
-       
-       //old version said: sp = sp - 1; read(stack[sp]);
+
        //new version says read reg[i];
+       //In class, he says to scan and output something, not sure what to output
+       scanf("%d", &reg[i]);
        break;
 
     default:
-        
+
         halt = 0;
-        
+
        }
     }
 }
