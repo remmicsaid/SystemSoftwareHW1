@@ -16,10 +16,8 @@
 int main()
 {
 
-	//Okay so we have 2? files, an input and an output
-	//I think because we are doing fopen "r" for input
-	//we might use fopen w for output especially since we have 2 outputs
-	//We might have 2 fopen "w" but we'll worry about that later.
+	//Okay so we will have 2 files, an input and an output
+	//One of the outputs should be able to be included in the main, I'm thinking. So that just leaves the last output
 
 	int i;
 	FILE *fINPUT; //, fOUTPUT;
