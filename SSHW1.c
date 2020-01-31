@@ -20,7 +20,7 @@ typedef struct oplm {
 }instruction;
 
 instruction *create_instruction(int op, int reg, int l, int m);
-void fetchCycle(instruction *theseInstructions, int len);
+void fetchCycle(char *str);
 void executionCycle(instruction *ir);
 instruction *toInstruction(char *str);
 void printInstructions(instruction *arr, int len);
@@ -38,16 +38,33 @@ instruction *create_instruction(int op, int reg, int l, int m)
 }
 
 // iterates through array of instructions and sends them to executionCycle
-void fetchCycle(instruction *theseInstructions, int len)
+void fetchCycle(char *str)
 {
-  int i;
+  int i, len = strlen(str);
+  char *token;
+  int insts[len];
 
   for (i = 0; i < len; i++)
   {
-    executionCycle(&theseInstructions[i]);
+    token = strtok(str, " ");
+    printf("token: %s\n", token);
+    insts[i] = atoi(token);
+  }
+  printf("\nInteger array of instructons:\n");
+  for (i = 0; i < len; i++)
+  {
+    (i % 4 == 0) ? printf("%d\n", insts[i]) : printf("%d ", insts[i]);
   }
 
-  return;
+
+  // int i;
+  //
+  // for (i = 0; i < len; i++)
+  // {
+  //   executionCycle(&theseInstructions[i]);
+  // }
+  //
+  // return;
 }
 
 int base(int l, int base, int* data_stack)
@@ -159,70 +176,76 @@ void executionCycle(instruction *inst)
     }
 }
 
-// Takes in string of integers representing instructions and the address of
-// an array of instructions. Then parses the integer values out of the string
+// Takes in string of integers representing instructions.
+// Then parses the integer values out of the string
 // and assigns them to the corresponding values within an instruction struct.
 // This function returns an ordered array of all of the instructions.
-instruction *toInstruction(char *str)
-{
-  int count = 1, op, reg, l, m, len = strlen(str), i = 0;
-  instruction *thisInst;
+// instruction *toInstruction(char *str)
+// {
+//   int count = 1, op, reg, l, m, len = strlen(str), i = 1;
+//   instruction *thisInst;
+//
+//   printf("1\n");
+//   instruction *theseInstructions = malloc((sizeof(instruction) * len) + 1);
+//   printf("2\n");
+//   char *token;
+//   printf("4\n");
+//   while (token != NULL)
+//   {
+//     printf("5\n");
+//     token = strtok(str, " ");
+//     if (count % 4 == 1)
+//     {
+//       // putting every first value in op field
+//       op = atoi(token);
+//     }
+//     printf("6\n");
+//     if (count % 4 == 2)
+//     {
+//       // putting every second value in the reg field
+//       reg = atoi(token);
+//     }
+//
+//     if (count % 4 == 3)
+//     {
+//       // putting every third value in the l field
+//       l = atoi(token);
+//     }
+//     if (count % 4 == 0)
+//     {
+//       // putting every fourth value in the m field
+//       m = atoi(token);
+//     }
+//     // creating an instruction object with the four fields
+//     *thisInst = *create_instruction(op, reg, l, m);
+//     // adding this instruction object to the array of instructions before the
+//     // fields get overwritten with the next set of instructions
+//     theseInstructions[i++] = *thisInst;
+//     printf("loop %d...\n", i++);
+//     count++;
+//   }
+//   return theseInstructions;
+// }
 
-  instruction *theseInstructions = malloc((sizeof(instruction) * len) + 1);
-  char *token = " ";
-  while (token != NULL)
-  {
-    token = strtok(str, " ");
-    if (count % 4 == 1)
-    {
-      // putting every first value in op field
-      op = atoi(token);
-    }
-    if (count % 4 == 2)
-    {
-      // putting every second value in the reg field
-      reg = atoi(token);
-    }
-    if (count % 4 == 3)
-    {
-      // putting every third value in the l field
-      l = atoi(token);
-    }
-    if (count % 4 == 0)
-    {
-      // putting every fourth value in the m field
-      m = atoi(token);
-    }
-    // creating an instruction object with the four fields
-    *thisInst = *create_instruction(op, reg, l, m);
-    // adding this instruction object to the array of instructions before the
-    // fields get overwritten with the next set of instructions
-    theseInstructions[i++] = *thisInst;
-  }
-  return theseInstructions;
-}
-
-void printInstructions(instruction *arr, int len)
-{
-  int i;
-  for (i = 0; i < len; i++)
-  {
-    printf("instruction %d: %d %d %d %d\n", i, arr[i].op, arr[i].reg, arr[i].l, arr[i].m);
-  }
-}
-
-
+// void printInstructions(instruction *arr, int len)
+// {
+//   int i;
+//   for (i = 0; i < len; i++)
+//   {
+//     printf("instruction %d: %d %d %d %d\n", i, arr[i].op, arr[i].reg, arr[i].l, arr[i].m);
+//   }
+// }
 
 // frees all of the dynamically allocated memory from the instruction array
-void burnIt(instruction *arr, int len)
-{
-  int i;
-  for (i = 0; i < len; i++)
-  {
-    free(&arr[i]);
-  }
-  free(arr);
-}
+// void burnIt(instruction *arr, int len)
+// {
+//   int i;
+//   for (i = 0; i < len; i++)
+//   {
+//     free(&arr[i]);
+//   }
+//   free(arr);
+// }
 
 int main(int argc, char **argv)
 {
@@ -246,23 +269,25 @@ int main(int argc, char **argv)
   // Collecting file input
   while (!feof(fp))
   {
+    // reading in the file in character by character
     c = fgetc(fp);
-    buffer[i++] = c;
+    buffer[i] = c;
+    i += 1;
   }
   len = strlen(buffer);
 
   // converting char input to ints then to instructions and storing those
   // instructions in an array
-  printf("toInstruction...\n");
-  theseInstructions = toInstruction(buffer);
+  // printf("toInstruction...\n");
+  // theseInstructions = toInstruction(buffer);
   // testing toInstruction by printing array of instructions
-  printf("printInstructions...\n");
-  printInstructions(theseInstructions, len);
+  // printf("printInstructions...\n");
+  // printInstructions(theseInstructions, len);
   // sending array of instructions to be processed
-  printf("fetchCycle...\n");
-  fetchCycle(theseInstructions, len);
-  printf("burnIt...\n");
-  burnIt(theseInstructions, len);
+  printf("File contents:\n*%s*\n", buffer);
+  fetchCycle(buffer);
+  // printf("burnIt...\n");
+  // burnIt(theseInstructions, len);
 
   fclose(fp);
   return 0;
