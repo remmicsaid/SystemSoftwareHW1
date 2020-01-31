@@ -12,83 +12,51 @@
 #define MAX_CODE_LENGTH 500
 #define MAX_LEXI_LEVELS 3
 
-void fetchCycle(int *arr, int size);
-void executionCycle(int op, int reg, int l, int m);
+int *fetchCycle(int *code, int *ir, int pc);
+void executionCycle(int *code);
+int base(int l, int base, int* data_stack);
 
-// Takes in an array of integers representing instructions and sends them to
-// executionCycle to be processed
-void fetchCycle(int *arr, int len)
+// Returns the integer array that make a specific instruction to executionCycle
+// to be processed. Takes in as arguments the array of all instructions, the array
+// to be returned, and a counter which signals the instruction being requested.
+int *fetchCycle(int *code, int *ir, int pc)
 {
-  // capturing the length of the int array
-  int i, op = 0, r = 0, l = 0, m = 0;
-
-  printf("\n\nSize of array: %d\nValues successfully passed:\n======================\n", len);
-
-  // loops through all integers in arr and sends the values in sets of four to
-  // executionCycle
-  for (i = 0; i < len; i++)
+  int index = pc * 4;
+  if (index % 4 == 0)
   {
-    if (i % 4 == 0)
-    {
-      op = arr[i];
-      // continue;
-    }
-    if (i % 4 == 1)
-    {
-      r = arr[i];
-      // continue;
-    }
-    if (i % 4 == 2)
-    {
-      l = arr[i];
-      // continue;
-    }
-    if (i % 4 == 3)
-    {
-      m = arr[i];
-      // continue;
-    }
-    printf("calling executionCycle...\n"); // why are these lines not executing?
-    executionCycle(op, r, l, m);
+    ir[pc] = code[index];
+    // continue;
   }
-  return;
+  if (pc % 4 == 1)
+  {
+    ir[pc] = code[index];
+    // continue;
+  }
+  if (pc % 4 == 2)
+  {
+    ir[pc] = code[index];
+    // continue;
+  }
+  if (pc % 4 == 3)
+  {
+    ir[pc] = code[index];
+    // continue;
+  }
+
+  return ir;
 }
 
-int base(int l, int base, int* data_stack)
-// l stand for L in the instruction format
-{
-  int b1; //find base L levels down
-  b1 = base;
-  while (l > 0)
-  {
-    b1 = data_stack[b1 + 1];
-    l--;
-  }
-  return b1;
-}
 
 // takes in a single instruction and executes the command of that instruction
-void executionCycle(int op, int r, int l, int m)
+void executionCycle(int *code)
 {
-  int sp, bp, pc, ir, gp, halt;
+  int l, m, sp = MAX_DATA_STACK_HEIGHT, bp = 0, pc = 0, gp = -1, halt = 0, i = 0, *ir;
   int data_stack[41] = {0}, reg[200];
 
-  sp = MAX_DATA_STACK_HEIGHT;
-  bp = 0;
-  pc = 0;
-  ir  = 0;
-  gp = -1;
-  halt = 0;
-  int i = 0;
-
-  // printf("< %d , %d , %d , %d >\n", op, r, l, m);
-
-  while (halt == 0) // This is an infinite loop right now because we need to be
-                    // calling fetchCycle from within this function, not the other
-                    // way around. But I am tired so I leave that for tomorrow
+  ir = fetchCycle(code, ir, pc++);
+  while (halt == 0)
   {
-
-    switch(op)
+    switch(ir[0])
     {
        case 1:
         reg[i] = m;
@@ -143,17 +111,65 @@ void executionCycle(int op, int r, int l, int m)
          scanf("%d", &reg[i]);
          break;
 
-        default:
-          halt = 1;
+      case 11:
+        break;
+
+      case 12:
+        break;
+
+      case 13:
+        break;
+
+      case 14:
+        break;
+
+      case 15:
+        break;
+
+      case 16:
+        break;
+
+      case 17:
+        break;
+
+      case 18:
+        break;
+
+      case 19:
+        break;
+
+      case 20:
+        break;
+
+      case 21:
+        break;
+
+      default:
+        halt = 1;
+        printf("err: instrunction %d not valid\n", pc);
       }
+      ir = fetchCycle(code, ir, pc++);
   }
   return;
+}
+
+int base(int l, int base, int* data_stack)
+// l stand for L in the instruction format
+{
+  int b1; //find base L levels down
+  b1 = base;
+  while (l > 0)
+  {
+    b1 = data_stack[b1 + 1];
+    l--;
+  }
+  return b1;
 }
 
 int main(int argc, char **argv)
 {
   // Reading the instrustions
-  int i = 0, j = 1, len, num, insts[MAX_CODE_LENGTH];
+  int i = 0, j = 1, len, num, code[MAX_CODE_LENGTH];
   char *filename = argv[1], buffer[MAX_CODE_LENGTH] = {'\0'}, c;
   FILE *fp;
 
@@ -178,19 +194,19 @@ int main(int argc, char **argv)
     // Prints values as they are scanned in rows of 4
     (j++ % 4 == 0) ? printf("%d\n", num) : printf("%d ", num);
 
-    insts[i++] = num;
+    code[i++] = num;
     fscanf(fp, "%d", &num);
   }
   // Prints last value scanned
   printf("%d\n", num);
 
-  printf("\n\nContents of insts array after transfer:\n");
-  for (i = 0; i < j; i++)
-  {
-    printf("%d\n", insts[i]); // I guess the last value in the array is garbage?
-  }
+  // printf("\n\nContents of code array after transfer:\n");
+  // for (i = 0; i < j; i++)
+  // {
+  //   printf("%d\n", code[i]); // I guess the last value in the array is garbage?
+  // }
 
-  fetchCycle(insts, j);
+  executionCycle(code);
 
   fclose(fp);
   return 0;
