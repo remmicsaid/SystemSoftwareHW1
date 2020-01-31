@@ -3,8 +3,8 @@
 // COP 3402
 // Spring 2020
 
-#define MAX_DATA_STACK_HEIGHT 40
-#define MAX_CODE_LENGTH 200
+#define MAX_DATA_STACK_HEIGHT 23
+#define MAX_CODE_LENGTH 500
 #define MAX_LEXI_LEVELS 3
 
 #include <stdio.h>
@@ -202,16 +202,68 @@ instruction *toInstruction(char *str)
   return theseInstructions;
 }
 
+void printInstructions(instruction *arr, int len)
+{
+  int i;
+  for (i = 0; i < len; i++)
+  {
+    printf("instruction %d: %d %d %d %d\n", i, arr[i].op, arr[i].reg, arr[i].l, arr[i].m);
+  }
+}
+
+
+
+// frees all of the dynamically allocated memory from the instruction array
+void burnIt(instruction *arr, int len)
+{
+  int i;
+  for (i = 0; i < len; i++)
+  {
+    free(&arr[i]);
+  }
+  free(arr);
+}
+
 int main(int argc, char **argv)
 {
-  char code[MAX_CODE_LENGTH];
+  // Reading the instrustions
+  int i = 0, j = 0, len, retval;
+  char *filename = argv[1], buffer[MAX_CODE_LENGTH] = {'\0'}, c;
+  FILE *fp;
+  instruction *theseInstructions;
 
-  printf("Enter instructions in the form: <op> <reg> <l> <m>\nEnter <q> to quit\n==================================================\n");
-  // Collecting input
-  while (code != "q")
+  if (fp != NULL)
   {
-    scanf("%s", code);
+    fp = fopen(filename, "r");
+    // printf("File opened\n");
+  }
+  else
+  {
+    printf("err: file not found");
+    return 0;
   }
 
+  // Collecting file input
+  while (!feof(fp))
+  {
+    c = fgetc(fp);
+    buffer[i++] = c;
+  }
+  len = strlen(buffer);
+
+  // converting char input to ints then to instructions and storing those
+  // instructions in an array
+  printf("toInstruction...\n");
+  theseInstructions = toInstruction(buffer);
+  // testing toInstruction by printing array of instructions
+  printf("printInstructions...\n");
+  printInstructions(theseInstructions, len);
+  // sending array of instructions to be processed
+  printf("fetchCycle...\n");
+  fetchCycle(theseInstructions, len);
+  printf("burnIt...\n");
+  burnIt(theseInstructions, len);
+
+  fclose(fp);
   return 0;
 }
