@@ -12,37 +12,46 @@
 #define MAX_CODE_LENGTH 500
 #define MAX_LEXI_LEVELS 3
 
-int *fetchCycle(int *code, int *ir, int pc);
+typedef struct{
+  int op;
+  int r;
+  int l;
+  int m;
+}instruction;
+
+instruction *create_instruction(int op, int r, int l, int m);
+instruction *fetchCycle(int *code, instruction *ir, int pc);
 void executionCycle(int *code);
 int base(int l, int base, int* data_stack);
+
+// Given the four values that make up an instruction, returns the address of
+// an instruction type object
+instruction *create_instruction(int op, int r, int l, int m)
+{
+	instruction *i = calloc(1, sizeof(instruction));
+	i->op = op;
+  i->r = r;
+  i->l = l;
+  i->m = m;
+
+	return i;
+}
 
 // Returns the integer array that make a specific instruction to executionCycle
 // to be processed. Takes in as arguments the array of all instructions, the array
 // to be returned, and a counter which signals the instruction being requested.
-int *fetchCycle(int *code, int *ir, int pc)
+instruction *fetchCycle(int *code, instruction *ir, int pc)
 {
   int index = pc * 4;
-  if (index % 4 == 0)
-  {
-    ir[pc] = code[index];
-    // continue;
-  }
-  if (pc % 4 == 1)
-  {
-    ir[pc] = code[index];
-    // continue;
-  }
-  if (pc % 4 == 2)
-  {
-    ir[pc] = code[index];
-    // continue;
-  }
-  if (pc % 4 == 3)
-  {
-    ir[pc] = code[index];
-    // continue;
-  }
-
+  printf("accessing code[%d]\n", index);
+  ir->op = code[index++];
+  printf("accessing code[%d]\n", index);
+  ir->r = code[index++];
+  printf("accessing code[%d]\n", index);
+  ir->l = code[index++];
+  printf("accessing code[%d]\n", index);
+  ir->m = code[index++];
+  printf("accessing code[%d]\n", index);
   return ir;
 }
 
@@ -50,13 +59,17 @@ int *fetchCycle(int *code, int *ir, int pc)
 // takes in a single instruction and executes the command of that instruction
 void executionCycle(int *code)
 {
-  int l, m, sp = MAX_DATA_STACK_HEIGHT, bp = 0, pc = 0, gp = -1, halt = 0, i = 0, *ir;
+  int l, m, sp = MAX_DATA_STACK_HEIGHT, bp = 0, pc = 0, gp = -1, halt = 0, i = 0;
   int data_stack[41] = {0}, reg[200];
+  instruction *ir;
 
+  // Capturing instruction integers indicated by program counter
   ir = fetchCycle(code, ir, pc++);
+  // printf("5\n");
   while (halt == 0)
   {
-    switch(ir[0])
+    // printf("6\n");
+    switch(ir->op)
     {
        case 1:
         reg[i] = m;
@@ -148,6 +161,7 @@ void executionCycle(int *code)
         halt = 1;
         printf("err: instrunction %d not valid\n", pc);
       }
+      printf("Instruction executed...\n");
       ir = fetchCycle(code, ir, pc++);
   }
   return;
@@ -184,7 +198,8 @@ int main(int argc, char **argv)
     return 0;
   }
 
-  printf("Contents being scanned into array:\n");
+  // printf("Contents being scanned into array:\n");
+
   // Copying the file contents into an integer array
   // fscanf called here to get initial value that is evaluated in order to start
   // the loop
@@ -192,22 +207,16 @@ int main(int argc, char **argv)
   while (!feof(fp))
   {
     // Prints values as they are scanned in rows of 4
-    (j++ % 4 == 0) ? printf("%d\n", num) : printf("%d ", num);
-
+    // (j++ % 4 == 0) ? printf("%d\n", num) : printf("%d ", num);
     code[i++] = num;
     fscanf(fp, "%d", &num);
   }
-  // Prints last value scanned
-  printf("%d\n", num);
-
-  // printf("\n\nContents of code array after transfer:\n");
-  // for (i = 0; i < j; i++)
-  // {
-  //   printf("%d\n", code[i]); // I guess the last value in the array is garbage?
-  // }
+  code[i] = num;
+  // printf("%d\n", num);
 
   executionCycle(code);
 
   fclose(fp);
   return 0;
 }
+
