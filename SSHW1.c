@@ -180,21 +180,31 @@ int base(int l, int base, int* data_stack)
   return b1;
 }
 
-output(int* code, int i)
+void output(int* code, int i)
 {
     int* op, r, l, m;
-/*    for()
-    {
-        op[j] = code[i];
-        i++;
-        reg[j] = code[i];
-        i++
-    }
-    printf("Line \t OP \t R \t L \t M\n");*/
+    // for()
+    // {
+    //     op[j] = code[i];
+    //     i++;
+    //     reg[j] = code[i];
+    //     i++
+    // }
+    printf("Line \t OP \t R \t L \t M\n");
     int lines = i/4;
-    for(int j=0; j<lines; j++)
+    int k =0;
+    for(int j=0; j<=lines; j++)
     {
-        printf("%d \t %d \t %d \t %d \t %d\n", j, code[i++], code[i++], code[i++], code[i++]);
+        //printf("%d \t %d \t %d \t %d \t %d\n", k, code[k++], code[k++], code[k++], code[k++]);
+        printf("%d \t", j);
+        printf("%d \t", code[k]);
+        k++;
+        printf("%d \t", code[k]);
+        k++;
+        printf("%d \t", code[k]);
+        k++;
+        printf("%d \n", code[k]);
+        k++;
     }
 }
 
@@ -217,7 +227,7 @@ int main(int argc, char **argv)
     return 0;
   }
 
-  // printf("Contents being scanned into array:\n");
+  printf("Contents being scanned into array:\n");
 
   // Copying the file contents into an integer array
   // fscanf called here to get initial value that is evaluated in order to start
@@ -226,13 +236,13 @@ int main(int argc, char **argv)
   while (!feof(fp))
   {
     // Prints values as they are scanned in rows of 4
-    // (j++ % 4 == 0) ? printf("%d\n", num) : printf("%d ", num);
+    (j++ % 4 == 0) ? printf("%d\n", num) : printf("%d ", num);
     code[i] = num;
     i++;
     fscanf(fp, "%d", &num);
   }
   code[i] = num;
-  // printf("%d\n", num);
+  printf("%d\n", num);
 
   // executionCycle(code);
   output(code, i);
