@@ -59,7 +59,7 @@ instruction *fetchCycle(int *code, instruction *ir, int pc)
 // takes in a single instruction and executes the command of that instruction
 void executionCycle(int *code)
 {
-  int l, m, sp = MAX_DATA_STACK_HEIGHT, bp = 0, pc = 0, gp = -1, halt = 0, i = 0;
+  int l, m, sp = 0, bp = 1, pc = 0, gp = -1, halt = 0, i = 0;
   int data_stack[41] = {0}, reg[200];
   instruction *ir;
 
@@ -208,15 +208,15 @@ int main(int argc, char **argv)
   {
     // Prints values as they are scanned in rows of 4
     // (j++ % 4 == 0) ? printf("%d\n", num) : printf("%d ", num);
-    code[i++] = num;
+    code[i] = num;
+    i++;
     fscanf(fp, "%d", &num);
   }
   code[i] = num;
   // printf("%d\n", num);
 
-  executionCycle(code);
+  // executionCycle(code);
 
   fclose(fp);
   return 0;
 }
-
