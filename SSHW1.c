@@ -180,6 +180,25 @@ int base(int l, int base, int* data_stack)
   return b1;
 }
 
+output(int* code, int i)
+{
+    int* op, r, l, m;
+/*    for()
+    {
+        op[j] = code[i];
+        i++;
+        reg[j] = code[i];
+        i++
+    }
+    printf("Line \t OP \t R \t L \t M\n");*/
+    int lines = i/4;
+    for(int j=0; j<lines; j++)
+    {
+        printf("%d \t %d \t %d \t %d \t %d\n", j, code[i++], code[i++], code[i++], code[i++]);
+    }
+}
+
+
 int main(int argc, char **argv)
 {
   // Reading the instrustions
@@ -216,6 +235,7 @@ int main(int argc, char **argv)
   // printf("%d\n", num);
 
   // executionCycle(code);
+  output(code, i);
 
   fclose(fp);
   return 0;
