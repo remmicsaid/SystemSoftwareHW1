@@ -8,7 +8,7 @@
 #include <string.h>
 #include <ctype.h>
 
-#define MAX_DATA_STACK_HEIGHT 23
+#define MAX_DATA_STACK_HEIGHT 40
 #define MAX_CODE_LENGTH 500
 #define MAX_LEXI_LEVELS 3
 
@@ -43,125 +43,226 @@ instruction *create_instruction(int op, int r, int l, int m)
 instruction *fetchCycle(int *code, instruction *ir, int pc)
 {
   int index = pc * 4;
-  printf("accessing code[%d]\n", index);
+  // printf("accessing code[%d]\n", index);
   ir->op = code[index++];
-  printf("accessing code[%d]\n", index);
+  // index++;
+  // printf("accessing code[%d]\n", index);
   ir->r = code[index++];
-  printf("accessing code[%d]\n", index);
+  // index++;
+  // printf("accessing code[%d]\n", index);
   ir->l = code[index++];
-  printf("accessing code[%d]\n", index);
-  ir->m = code[index++];
+  // index++;
+  // printf("accessing code[%d]\n", index);
+  ir->m = code[index];
   return ir;
 }
 
+void super_output(int pc, int bp, int sp,int data_stack[], int reg[])
+{
+  int x;
+  printf("%d\t%d\t%d\t", pc, bp, sp);
+  for (x = 0; x < 8; x++)
+  {
+    printf("%d ", reg[x]);
+  }
+  printf("\nStack:");
+  for (x = 0; x < sp; x++)
+  {
+    printf("%d ", data_stack[x]);
+  }
+  printf("\n");
+  return;
+}
 
 // takes in a single instruction and executes the command of that instruction
 void executionCycle(int *code)
 {
-  int l, m, sp = 0, bp = 1, pc = 0, gp = -1, halt = 0, i = 0;
-  int data_stack[41] = {0}, reg[200];
+  int l, m, sp = 0, bp = 1, pc = 0, gp = -1, halt = 1, i = 0, j, k, x;
+  int data_stack[MAX_DATA_STACK_HEIGHT] = {0}, reg[8] = {0};
   instruction *ir = create_instruction(0, 0, 0, 0);
 
   // Capturing instruction integers indicated by program counter
-  ir = fetchCycle(code, ir, pc++);
+  ir = fetchCycle(code, ir, pc);
+
+
   // printf("5\n");
-  while (halt == 0)
+
+  printf("\t\tpc\tbp\tsp\tregistters\n");
+  printf("Initial values\t%d\t%d\t%d\t", pc, bp, sp);
+  for (x = 0; x < 8; x++)
+  {
+    printf("%d ", reg[x]);
+  }
+  printf("\nStack: ");
+  for (x = 0; x < MAX_DATA_STACK_HEIGHT; x++)
+  {
+    printf("%d ", data_stack[x]);
+  }
+  printf("\n");
+
+  while (halt == 1)
   {
     // printf("6\n");
     switch(ir->op)
     {
        case 1:
-        reg[i] = m;
+        printf("%d lit %d %d %d\t", pc, ir->r, ir->l, ir->m);
+        reg[ir->r] = ir->m;
+        super_output(pc, bp, sp, data_stack, reg);
         break;
 
        case 2:
+        printf("%d rtn %d %d %d\t", pc, ir->r, ir->l, ir->m);
         sp = bp - 1;
         bp = data_stack[sp + 3];
         pc = data_stack[sp + 4];
+        super_output(pc, bp, sp, data_stack, reg);
         break;
 
        case 3:
-        reg[i] = data_stack[base(l, bp, data_stack) + m];
+        printf("%d lod %d %d %d\t", pc, ir->r, ir->l, ir->m);
+        reg[ir->r] = data_stack[base(ir->l, bp, data_stack) + ir->m];
+        super_output(pc, bp, sp, data_stack, reg);
         break;
 
        case 4:
-        data_stack[ base(l, bp, data_stack) + m] = reg[i];
+        printf("%d sto %d %d %d\t", pc, ir->r, ir->l, ir->m);
+        data_stack[ base(ir->l, bp, data_stack) + ir->m] = reg[ir->r];
+        super_output(pc, bp, sp, data_stack, reg);
         break;
 
        case 5:
+        printf("%d cal %d %d %d\t", pc, ir->r, ir->l, ir->m);
         data_stack[sp + 1]  = 0;
-        data_stack[sp + 2]  =  base(l, bp, data_stack);
-        //base is a function
+        data_stack[sp + 2]  =  base(ir->l, bp, data_stack);
         data_stack[sp + 3]  = bp;
         data_stack[sp + 4]  = pc;
         bp = sp + 1;
-        pc = m;
+        pc = ir->m;
+        super_output(pc, bp, sp, data_stack, reg);
         break;
 
        case 6:
-         sp = sp + m;
+         printf("%d inc %d %d %d\t", pc, ir->r, ir->l, ir->m);
+         sp = sp + ir->m;
+         super_output(pc, bp, sp, data_stack, reg);
          break;
 
        case 7:
-         pc = m;
+         printf("%d jmp %d %d %d\t", pc, ir->r, ir->l, ir->m);
+         pc = ir->m;
+         super_output(pc, bp, sp, data_stack, reg);
          break;
 
        case 8:
-         if(reg[i] == 0)
+         printf("%d jpc %d %d %d\t", pc, ir->r, ir->l, ir->m);
+         if(reg[ir->r] == 0)
          {
-             pc = m;
+             pc = ir->m;
          }
+         super_output(pc, bp, sp, data_stack, reg);
          break;
 
+////////////////////////////////////?????????????????????
        case 9:
-         printf("%d", reg[i]);
+         printf("%d sio %d %d %d\t", pc, ir->r, ir->l, ir->m);
+         printf("%d", reg[ir->r]);
+         super_output(pc, bp, sp, data_stack, reg);
          break;
 
-       case 10:
-         //new version says read reg[i];
-         //In class, he says to scan and output something, not sure what to output
-         scanf("%d", &reg[i]);
-         break;
+         case 10:
+           printf("%d sio %d %d %d\t", pc, ir->r, ir->l, ir->m);
+           scanf("%d", &reg[ir->r]);
+           super_output(pc, bp, sp, data_stack, reg);
+           break;
 
-      case 11:
-        break;
+        case 11:
+          printf("%d sio %d %d %d\t", pc, ir->r, ir->l, ir->m);
+          halt = 0;
+          super_output(pc, bp, sp, data_stack, reg);
+          break;
 
-      case 12:
-        break;
+        case 12:
+          printf("%d neg %d %d %d\t", pc, ir->r, ir->l, ir->m);
+          reg[ir->r] = -reg[ir->r];
+          super_output(pc, bp, sp, data_stack, reg);
+          break;
 
-      case 13:
-        break;
+        case 13:
+          printf("%d add %d %d %d\t", pc, ir->r, ir->l, ir->m);
+          reg[ir->r] = reg[ir->l] + reg[ir->m];
+          super_output(pc, bp, sp, data_stack, reg);
+          break;
 
-      case 14:
-        break;
+        case 14:
+          printf("%d sub %d %d %d\t", pc, ir->r, ir->l, ir->m);
+          reg[ir->r] = reg[ir->l] - reg[ir->m];
+          super_output(pc, bp, sp, data_stack, reg);
+          break;
 
-      case 15:
-        break;
+        case 15:
+          printf("%d mul %d %d %d\t", pc, ir->r, ir->l, ir->m);
+          reg[ir->r] = reg[ir->l] * reg[ir->m];
+          super_output(pc, bp, sp, data_stack, reg);
+          break;
 
-      case 16:
-        break;
+        case 16:
+          printf("%d div %d %d %d\t", pc, ir->r, ir->l, ir->m);
+          reg[ir->r] = reg[ir->l] / reg[ir->m];
+          super_output(pc, bp, sp, data_stack, reg);
+          break;
 
-      case 17:
-        break;
+        case 17:
+          printf("%d odd %d %d %d\t", pc, ir->r, ir->l, ir->m);
+          reg[ir->r] = reg[ir->l] % 2;
+          super_output(pc, bp, sp, data_stack, reg);
+          break;
 
-      case 18:
-        break;
+        case 18:
+          printf("%d mod %d %d %d\t", pc, ir->r, ir->l, ir->m);
+          reg[ir->r] = reg[ir->l] %  reg[ir->m];
+          super_output(pc, bp, sp, data_stack, reg);
+          break;
 
-      case 19:
-        break;
+        case 19:
+          printf("%d eql %d %d %d\t", pc, ir->r, ir->l, ir->m);
+          reg[ir->r] = reg[ir->l] == reg[ir->m];
+          super_output(pc, bp, sp, data_stack, reg);
+          break;
 
-      case 20:
-        break;
+        case 20:
+          printf("%d neq %d %d %d\t", pc, ir->r, ir->l, ir->m);
+          reg[ir->r] = reg[ir->l] != reg[ir->m];
+          super_output(pc, bp, sp, data_stack, reg);
+          break;
 
-      case 21:
-        break;
+        case 21:
+          printf("%d lss %d %d %d\t", pc, ir->r, ir->l, ir->m);
+          reg[ir->r] = reg[ir->l] < reg[ir->m];
+          super_output(pc, bp, sp, data_stack, reg);
+          break;
 
-      default:
-        halt = 1;
-        printf("err: instrunction %d not valid\n", pc);
+        case 22:
+          printf("%d leq %d %d %d\t", pc, ir->r, ir->l, ir->m);
+          reg[ir->r] = reg[ir->l] <= reg[ir->m];
+          super_output(pc, bp, sp, data_stack, reg);
+          break;
+
+         case 23:
+          printf("%d gtr %d %d %d\t", pc, ir->r, ir->l, ir->m);
+          reg[ir->r] = reg[ir->l] <= reg[ir->m];
+          super_output(pc, bp, sp, data_stack, reg);
+          break;
+
+        default:
+          printf("%d geq %d %d %d\t", pc, ir->r, ir->l, ir->m);
+          reg[ir->r] = reg[ir->l] >= reg[m];
+          super_output(pc, bp, sp, data_stack, reg);
       }
-      printf("Instruction executed...\n");
+      // printf("Instruction executed...\n");
+
       ir = fetchCycle(code, ir, pc++);
+
   }
   return;
 }
@@ -182,27 +283,116 @@ int base(int l, int base, int* data_stack)
 void output(int* code, int i)
 {
     int* op, r, l, m;
-    // for()
-    // {
-    //     op[j] = code[i];
-    //     i++;
-    //     reg[j] = code[i];
-    //     i++
-    // }
     printf("Line \t OP \t R \t L \t M\n");
     int lines = i/4;
     int k =0;
     for(int j=0; j<=lines; j++)
     {
-        //printf("%d \t %d \t %d \t %d \t %d\n", k, code[k++], code[k++], code[k++], code[k++]);
-        printf("%d \t", j);
-        printf("%d \t", code[k]);
+        printf("%d \t", j); // line
+        switch (code[k])
+        {
+          case 1:
+            printf("lit \t");
+            break;
+
+          case 2:
+            printf("rtn \t");
+            break;
+
+          case 3:
+            printf("lod \t");
+            break;
+
+          case 4:
+            printf("sto \t");
+            break;
+
+          case 5:
+            printf("cal \t");
+            break;
+
+          case 6:
+            printf("inc \t");
+            break;
+
+          case 7:
+            printf("jmp \t");
+            break;
+
+          case 8:
+            printf("jpc \t");
+            break;
+
+          case 9:
+            printf("sio \t");
+            break;
+
+          case 10:
+            printf("sto \t");
+            break;
+
+          case 11:
+            printf("sto \t");
+            break;
+
+          case 12:
+            printf("neg \t");
+            break;
+
+          case 13:
+            printf("add \t");
+            break;
+
+          case 14:
+            printf("sub \t");
+            break;
+
+          case 15:
+            printf("mul \t");
+            break;
+
+          case 16:
+            printf("div \t");
+            break;
+
+          case 17:
+            printf("odd \t");
+            break;
+
+          case 18:
+            printf("mod \t");
+            break;
+
+          case 19:
+            printf("eql \t");
+            break;
+
+          case 20:
+            printf("neq \t");
+            break;
+
+          case 21:
+            printf("lss \t");
+            break;
+
+          case 22:
+            printf("leq \t");
+            break;
+
+          case 23:
+            printf("gtr \t");
+            break;
+
+          case 24:
+            printf("geq \t");
+            break;
+        }
         k++;
-        printf("%d \t", code[k]);
+        printf("%d \t", code[k]); // r
         k++;
-        printf("%d \t", code[k]);
+        printf("%d \t", code[k]); // l
         k++;
-        printf("%d \n", code[k]);
+        printf("%d \n", code[k]); // m
         k++;
     }
 }
@@ -249,4 +439,5 @@ int main(int argc, char **argv)
   fclose(fp);
   return 0;
 }
+
 
