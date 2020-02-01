@@ -51,7 +51,6 @@ instruction *fetchCycle(int *code, instruction *ir, int pc)
   ir->l = code[index++];
   printf("accessing code[%d]\n", index);
   ir->m = code[index++];
-  printf("accessing code[%d]\n", index);
   return ir;
 }
 
@@ -61,7 +60,7 @@ void executionCycle(int *code)
 {
   int l, m, sp = 0, bp = 1, pc = 0, gp = -1, halt = 0, i = 0;
   int data_stack[41] = {0}, reg[200];
-  instruction *ir;
+  instruction *ir = create_instruction(0, 0, 0, 0);
 
   // Capturing instruction integers indicated by program counter
   ir = fetchCycle(code, ir, pc++);
@@ -244,9 +243,10 @@ int main(int argc, char **argv)
   code[i] = num;
   printf("%d\n", num);
 
-  // executionCycle(code);
   output(code, i);
+  executionCycle(code);
 
   fclose(fp);
   return 0;
 }
+
